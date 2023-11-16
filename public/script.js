@@ -1,27 +1,24 @@
-document
-  .getElementById('urlForm')
-  .addEventListener('submit', async function (e) {
-    e.preventDefault();
+const form = document.getElementById('urlForm');
 
-    const url = document.getElementById('urlInput').value;
-    const resultDiv = document.getElementById('result');
+const suceedMessage = (url) =>
+  `<p>Shortened URL: <a href="${url}" target="_blank">${url}</a></p>`;
 
-    try {
-      const response = await fetch('http://localhost:3000/api/url-shortener', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      });
+const errorMessage = (message) => `<p>Error: ${message}</p>`;
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+form.addEventListener('submit', async function (e) {
+  e.preventDefault();
 
-      const data = await response.json();
-      resultDiv.innerHTML = `<p>Shortened URL: <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a></p>`;
-    } catch (error) {
-      resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
-    }
-  });
+  const url = document.getElementById('urlInput').value;
+  const result = document.getElementById('result');
+
+  try {
+    const response = await axios.post(
+      'http://localhost:3000/api/url-shortener',
+      { url },
+    );
+    result.innerHTML = suceedMessage(response.data.shortUrl);
+  } catch (error) {
+    console.error('Error:', error);
+    result.innerHTML = errorMessage(error.message);
+  }
+});
